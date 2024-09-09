@@ -26,9 +26,7 @@ SECRET_KEY = 'django-insecure-%9tkr6=2x0koih$(9^sggb-z)ub@g$37t*57u7eymim46k+9)w
 DEBUG = True
 
 # ALLOWED_HOSTS = []
-ALLOWED_HOSTS = [
-    'fsalms-bqecc9fphwddbzbz.southeastasia-01.azurewebsites.net',
-]
+ALLOWED_HOSTS = ['*']
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'  # or 'bootstrap5'
 
