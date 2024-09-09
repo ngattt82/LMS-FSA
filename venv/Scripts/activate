@@ -35,7 +35,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\NgaTTT45\libraryproject\venv"
+VIRTUAL_ENV="C:\Users\NgaTTT45\Documents\Python\lms_project\venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
