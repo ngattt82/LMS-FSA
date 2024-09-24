@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Thread List{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Thread List</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Thread Title</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for thread in threads %}
+            <tr>
+                <td>
+                    <a href="{% url 'thread:thread_detail' thread.pk %}">
+                        {{ thread.thread_title }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'thread:update_thread' thread.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="{% url 'thread:delete_thread' thread.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'thread:create_thread' %}" class="btn btn-primary">Add New Thread</a>
+</div>
+{% endblock %}

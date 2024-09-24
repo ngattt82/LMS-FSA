@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ thread.thread_title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ thread.thread_title }}</h2>
+    <p><strong>Created by:</strong> {{ thread.created_by }}</p>
+    <p><strong>Subject:</strong> {{ thread.subject }}</p>
+    <p>{{ thread.thread_content }}</p>
+
+    <h3>Comments</h3>
+    <div class="comments-section">
+        {% for comment in thread.comments.all %}
+            <div class="comment">
+                <p><strong>{{ comment.user.username }}:</strong> {{ comment.comment_text }}</p>
+                <p><small>Posted on {{ comment.created }}</small></p>
+                    <a href="{% url 'thread:update_comment' thread.pk comment.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{% url 'thread:delete_comment' thread.pk comment.pk%}" class="btn btn-sm btn-danger">Delete</a>
+            </div>
+        {% empty %}
+            <p>No comments yet.</p>
+        {% endfor %}
+    </div>
+
+    <h4>Add a Comment</h4>
+    <form method="post" action="{% url 'thread:add_comment' thread.pk %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Post Comment</button>
+    </form>
+
+    <a href="{% url 'thread:thread_list' %}" class="btn btn-secondary mt-3">Back to Threads</a>
+</div>
+{% endblock %}
