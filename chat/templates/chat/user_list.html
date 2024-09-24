@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    User List
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1>All Users</h1>
+        <ul class="list-group">
+            {% for user in users %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ user.username }}
+                    <a href="{% url 'chat:chat_view' user.username %}?sender={{ request.GET.sender }}" class="btn btn-primary btn-sm">Check Messages</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

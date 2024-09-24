@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Chat with {{ other_user.username }}
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1>Chat with {{ other_user.username }}</h1>
+
+        <div class="mt-4">
+            <h2>Messages</h2>
+            <div class="chat-box">
+                <ul class="list-group mb-4">
+                    {% for message in messages %}
+                        <li class="list-group-item {% if message.sender == other_user %}received{% else %}sent{% endif %}">
+                            <div class="message-content">
+                                <strong>{{ message.sender.username }}:</strong> {{ message.message }} 
+                                <small class="text-muted">({{ message.timestamp }})</small>
+                            </div>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item">No messages yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Form to send a new message -->
+        <h2>Send a Message</h2>
+        <form method="POST" class="mb-4">
+    {% csrf_token %}
+    
+    <input type="hidden" name="sender" value="{{ user.username }}">
+
+    <div class="form-group">
+        <label for="receiver">Receiver:</label>
+        <select id="receiver" name="receiver" class="form-control" required>
+            {% for user in users %}
+                <option value="{{ user.username }}" {% if user.username == other_user.username %}selected{% endif %}>{{ user.username }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" rows="3" class="form-control" required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Send Message</button>
+        </form>
+
+        
+        <!-- Button to open the send message form -->
+        <a href="{% url 'chat:send_message_form' %}" class="btn btn-secondary mb-2">Send a Message to Another User</a>
+        <br>
+        <a href="{% url 'chat:user_list' %}" class="btn btn-secondary">Back to User List</a>
+    </div>
+
+    <style>
+        .chat-box {
+            display: flex;
+            flex-direction: column;
+            height: 400px; /* Adjust height as needed */
+            overflow-y: auto;
+        }
+        .list-group-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+            max-width: 60%; /* Adjust width as needed */
+        }
+        .received {
+            background-color: #f1f1f1;
+            align-self: flex-start;
+        }
+        .sent {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+            text-align: right;
+        }
+        .message-content {
+            display: flex;
+            flex-direction: column;
+        }
+        .list-group-item small {
+            display: block;
+            margin-top: 5px;
+        }
+    </style>
+{% endblock %}
