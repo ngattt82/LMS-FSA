@@ -4,11 +4,52 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>User Details</h2>
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>Full Name:</strong> {{ user.full_name }}</p>
-    <p><strong>Role:</strong> {{ user.role }}</p>
-    <a href="{% url 'user:user_list' %}" class="btn btn-primary">Back to User List</a>
+    <h2>Details</h2>
+    <div class="d-flex justify-content-between">
+        <div class="card p-3 me-2" style="width: 48%;">
+            <h3>Information</h3>
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Full Name:</strong> {{ user.full_name }}</p>
+            <p><strong>Role:</strong> {{ user.role }}</p>
+            <p><strong>Profile Picture:</strong>
+                {% if user.profile_picture_url %}
+                <img src="{{ user.profile_picture_url }}" alt="Profile Picture" width="150">
+                {% else %}
+                No profile picture available
+                {% endif %}
+            </p>
+            <p><strong>Created At:</strong> {{ user.created_at }}</p>
+            <p><strong>Updated At:</strong> {{ user.updated_at }}</p>
+        </div>
+
+        <div class="card p-3" style="width: 48%;">
+            <h3>Profile</h3>
+            {% if profile %}
+                <p><strong>Bio:</strong> {{ profile.bio }}</p>
+                <p><strong>Interests:</strong> {{ profile.interests }}</p>
+                <p><strong>Learning Style:</strong> {{ profile.learning_style }}</p>
+                <p><strong>Preferred Language:</strong> {{ profile.preferred_language }}</p>
+            {% else %}
+                <p>This user does not have a profile.</p>
+            {% endif %}
+
+            <h3>Personalization</h3>
+            {% if Personalization %}
+                <p><strong>Recommended Courses:</strong> {{ Personalization.recommended_courses }}</p>
+                <p><strong>Personalized Learning Path:</strong> {{ Personalization.personalized_learning_path }}</p>
+                <p><strong>Learning Style:</strong> {{ Personalization.learning_style }}</p>
+                
+            {% else %}
+                <p>This user does not have a profile.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'user:user_edit' user.pk %}" class="btn btn-warning">Edit</a>
+        <a href="{% url 'user:user_delete' user.pk %}" class="btn btn-danger">Delete</a>
+        <a href="{% url 'user:user_list' %}" class="btn btn-secondary">Back to User List</a>
+    </div>
 </div>
 {% endblock %}
