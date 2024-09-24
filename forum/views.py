@@ -43,8 +43,8 @@ def question_detail(request, pk):
     question = get_object_or_404(ForumQuestion, pk=pk)
 
     if request.method == 'POST':
-        comment_form = ForumCommentForm(request.POST)
-        reply_form = ReplyForm(request.POST)
+        comment_form = ForumCommentForm(request.POST, request.FILES)
+        reply_form = ReplyForm(request.POST, request.FILES)
 
         if 'submit_comment' in request.POST and comment_form.is_valid():
             comment = comment_form.save(commit=False)
@@ -79,7 +79,7 @@ def question_detail(request, pk):
 @login_required
 def create_question(request):
     if request.method == 'POST':
-        form = ForumQuestionForm(request.POST)
+        form = ForumQuestionForm(request.POST, request.FILES)
         if form.is_valid():
             question = form.save(commit=False)
             question.user = request.user
@@ -88,3 +88,125 @@ def create_question(request):
     else:
         form = ForumQuestionForm()
     return render(request, 'forum_create_question.html', {'form': form})
+
+@login_required
+def edit_question(request, pk):
+    question = get_object_or_404(ForumQuestion, pk=pk)
+    if request.method == 'POST':
+        form = ForumQuestionForm(request.POST, request.FILES, instance=question)
+        if form.is_valid():
+            form.save()
+            return redirect('forum:question_detail', pk=pk)
+    else:
+        form = ForumQuestionForm(instance=question)
+    return render(request, 'forum_edit_question.html', {'form': form})
+
+@login_required
+def delete_question(request, pk):
+    question = get_object_or_404(ForumQuestion, pk=pk)
+    if request.method == 'POST':
+        question.delete()
+        return redirect('forum:question_list')
+    return render(request, 'forum_confirm_delete.html', {'object': question})
+
+@login_required
+def edit_comment(request, pk):
+    comment = get_object_or_404(ForumComment, pk=pk)
+    if request.method == 'POST':
+        form = ForumCommentForm(request.POST, request.FILES, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect('forum:question_detail', pk=comment.question.pk)
+    else:
+        form = ForumCommentForm(instance=comment)
+    return render(request, 'forum_edit_comment.html', {'form': form})
+
+@login_required
+def delete_comment(request, pk):
+    comment = get_object_or_404(ForumComment, pk=pk)
+    if request.method == 'POST':
+        question_pk = comment.question.pk
+        comment.delete()
+        return redirect('forum:question_detail', pk=question_pk)
+    return render(request, 'forum_confirm_delete.html', {'object': comment})
+
+@login_required
+def edit_reply(request, pk):
+    reply = get_object_or_404(Reply, pk=pk)
+    if request.method == 'POST':
+        form = ReplyForm(request.POST, request.FILES, instance=reply)
+        if form.is_valid():
+            form.save()
+            return redirect('forum:question_detail', pk=reply.comment.question.pk if reply.comment else reply.parent_reply.comment.question.pk)
+    else:
+        form = ReplyForm(instance=reply)
+    return render(request, 'forum_edit_reply.html', {'form': form})
+
+@login_required
+def delete_reply(request, pk):
+    reply = get_object_or_404(Reply, pk=pk)
+    if request.method == 'POST':
+        question_pk = reply.comment.question.pk if reply.comment else reply.parent_reply.comment.question.pk
+        reply.delete()
+        return redirect('forum:question_detail', pk=question_pk)
+    return render(request, 'forum_confirm_delete.html', {'object': reply})
+
+@login_required
+def like_question(request, pk):
+    question = get_object_or_404(ForumQuestion, pk=pk)
+    if request.user in question.likes.all():
+        question.likes.remove(request.user)
+    else:
+        question.likes.add(request.user)
+        question.dislikes.remove(request.user)
+    return redirect('forum:question_detail', pk=pk)
+
+@login_required
+def dislike_question(request, pk):
+    question = get_object_or_404(ForumQuestion, pk=pk)
+    if request.user in question.dislikes.all():
+        question.dislikes.remove(request.user)
+    else:
+        question.dislikes.add(request.user)
+        question.likes.remove(request.user)
+    return redirect('forum:question_detail', pk=pk)
+
+@login_required
+def like_comment(request, pk):
+    comment = get_object_or_404(ForumComment, pk=pk)
+    if request.user in comment.likes.all():
+        comment.likes.remove(request.user)
+    else:
+        comment.likes.add(request.user)
+        comment.dislikes.remove(request.user)
+    return redirect('forum:question_detail', pk=comment.question.pk)
+
+@login_required
+def dislike_comment(request, pk):
+    comment = get_object_or_404(ForumComment, pk=pk)
+    if request.user in comment.dislikes.all():
+        comment.dislikes.remove(request.user)
+    else:
+        comment.dislikes.add(request.user)
+        comment.likes.remove(request.user)
+    return redirect('forum:question_detail', pk=comment.question.pk)
+
+@login_required
+def like_reply(request, pk):
+    reply = get_object_or_404(Reply, pk=pk)
+    if request.user in reply.likes.all():
+        reply.likes.remove(request.user)
+    else:
+        reply.likes.add(request.user)
+        reply.dislikes.remove(request.user)
+    return redirect('forum:question_detail', pk=reply.comment.question.pk if reply.comment else reply.parent_reply.comment.question.pk)
+
+@login_required
+def dislike_reply(request, pk):
+    reply = get_object_or_404(Reply, pk=pk)
+    if request.user in reply.dislikes.all():
+        reply.dislikes.remove(request.user)
+    else:
+        reply.dislikes.add(request.user)
+        reply.likes.remove(request.user)
+    return redirect('forum:question_detail', pk=reply.comment.question.pk if reply.comment else reply.parent_reply.comment.question.pk)

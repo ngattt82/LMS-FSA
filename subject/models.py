@@ -7,14 +7,22 @@ class Subject(models.Model):
     name = models.CharField(max_length=255, unique=True)
     subject_code = models.CharField(max_length=20, unique=True, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    prerequisites = models.ManyToManyField('self', blank=True, symmetrical=False, related_name='required_for')
+
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_subjects')
-    instructor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
-                                   related_name='taught_subjects')
+    instructor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='taught_subjects')
 
     def __str__(self):
         return self.name
 
+class Prerequisite(models.Model):
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='subject_prerequisites')
+    prerequisite_subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='prerequisite_for_subjects')
+
+    class Meta:
+        unique_together = ('subject', 'prerequisite_subject')
+
+    def __str__(self):
+        return f"{self.prerequisite_subject.name} is a prerequisite for {self.subject.name}"
 
 # Mô hình lưu trữ tài liệu
 class Document(models.Model):

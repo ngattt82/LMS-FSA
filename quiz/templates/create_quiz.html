@@ -5,10 +5,10 @@
 {% block content %}
 <div class="container mt-5">
     <h2 class="mb-4">Create New Quiz</h2>
-    
+
     <form method="post" enctype="multipart/form-data" id="quizForm">
         {% csrf_token %}
-        
+
         <div class="mb-3">
             <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
             {{ form.title }}
@@ -22,15 +22,39 @@
             {{ form.category }}
         </div>
         <div class="mb-3">
-            <label for="{{ form.end_date.id_for_label }}" class="form-label">End Date</label>
-            {{ form.end_date }}
+            <label for="{{ form.due_date.id_for_label }}" class="form-label">Due Date</label>
+            {{ form.due_date }}
         </div>
-        
-        <button type="button" class="btn btn-secondary" id="selectQuestionsBtn">Load Questions</button>
+        <div class="mb-3">
+            <label for="{{ form.attempts_allowed.id_for_label }}" class="form-label">Attempts Allowed</label>
+            {{ form.attempts_allowed }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.grading_method.id_for_label }}" class="form-label">Grading Method</label>
+            {{ form.grading_method }}
+        </div>
 
-        <div id="questionSelection" style="display: none;">
-            <h3 class="mt-4">Select Questions</h3>
-            <div id="questionList"></div>
+        <div class="mb-3">
+            <label for="question_selection_method" class="form-label">Question Selection Method</label>
+            <select class="form-select" id="question_selection_method" name="question_selection_method">
+                <option value="manual">Select Questions Manually</option>
+                <option value="random">Select Questions Randomly</option>
+            </select>
+        </div>
+
+        <div id="manualSelection">
+            <button type="button" class="btn btn-secondary" id="selectQuestionsBtn">Load Questions</button>
+            <div id="questionSelection" style="display: none;">
+                <h3 class="mt-4">Select Questions</h3>
+                <div id="questionList"></div>
+            </div>
+        </div>
+
+        <div id="randomSelection" style="display: none;">
+            <div class="mb-3">
+                <label for="num_questions" class="form-label">Number of Questions</label>
+                <input type="number" class="form-control" id="num_questions" name="num_questions" min="1">
+            </div>
         </div>
 
         <button type="submit" class="btn btn-primary mt-3">Create Quiz</button>
@@ -39,10 +63,23 @@
 </div>
 
 <script>
+document.getElementById('question_selection_method').addEventListener('change', function() {
+    var manualSelection = document.getElementById('manualSelection');
+    var randomSelection = document.getElementById('randomSelection');
+
+    if (this.value === 'manual') {
+        manualSelection.style.display = 'block';
+        randomSelection.style.display = 'none';
+    } else {
+        manualSelection.style.display = 'none';
+        randomSelection.style.display = 'block';
+    }
+});
+
 document.getElementById('selectQuestionsBtn').addEventListener('click', function() {
     var subject = document.getElementById('{{ form.subject.id_for_label }}').value;
     var category = document.getElementById('{{ form.category.id_for_label }}').value;
-    
+
     if (subject && category) {
         fetch(`{% url 'quiz:load_questions' %}?subject=${subject}&category=${category}`)
             .then(response => response.json())

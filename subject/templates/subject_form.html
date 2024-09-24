@@ -31,6 +31,22 @@
             {{ subject_form.instructor|add_class:"form-control" }}
         </div>
 
+        <!-- Prerequisite Subjects -->
+        <div class="form-group">
+            <h3>Prerequisite Subjects</h3>
+            <div id="prerequisite-container">
+                <div class="prerequisite-entry">
+                    <select name="prerequisite_subjects" class="form-control">
+                        <option value="">Select a prerequisite subject (optional)</option>
+                        {% for subject in all_subjects %}
+                            <option value="{{ subject.subject_id }}">{{ subject.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <button type="button" id="add-prerequisite" class="btn btn-secondary mt-2">Add Another Prerequisite</button>
+        </div>
+
         <!-- Documents -->
         <div class="form-group">
             <h3>Documents</h3>

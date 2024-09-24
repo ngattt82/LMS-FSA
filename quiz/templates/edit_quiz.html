@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
-{% block title %}Edit Quiz: {{ quiz.title }}{% endblock %}
+{% block title %}Edit Quiz{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="mb-4">Edit Quiz: {{ quiz.title }}</h2>
-    
+    <h2 class="mb-4">Edit Quiz</h2>
+
     <form method="post" enctype="multipart/form-data" id="quizForm">
         {% csrf_token %}
-        
+
         <div class="mb-3">
             <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
             {{ form.title }}
@@ -22,10 +22,19 @@
             {{ form.category }}
         </div>
         <div class="mb-3">
-            <label for="{{ form.end_date.id_for_label }}" class="form-label">End Date</label>
-            {{ form.end_date }}
+            <label for="{{ form.due_date.id_for_label }}" class="form-label">Due Date</label>
+            {{ form.due_date }}
         </div>
-        
+        <div class="mb-3">
+            <label for="{{ form.attempts_allowed.id_for_label }}" class="form-label">Attempts Allowed</label>
+            {{ form.attempts_allowed }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.grading_method.id_for_label }}" class="form-label">Grading Method</label>
+            {{ form.grading_method }}
+        </div>
+
         <button type="button" class="btn btn-secondary" id="selectQuestionsBtn">Load Questions</button>
 
         <div id="questionSelection">
@@ -39,19 +48,6 @@
                                 <label class="form-check-label" for="question_{{ question.id }}">
                                     {{ question.question_text }}
                                 </label>
-                            </div>
-                            <div class="mt-2">
-                                <strong>Answers:</strong>
-                                <ul>
-                                    {% for answer in question.answers.all %}
-                                        <li>
-                                            {{ answer.answer_text }}
-                                            {% if answer.is_correct %}
-                                                <span class="badge bg-success">Correct</span>
-                                            {% endif %}
-                                        </li>
-                                    {% endfor %}
-                                </ul>
                             </div>
                         </div>
                     </div>
@@ -68,7 +64,7 @@
 document.getElementById('selectQuestionsBtn').addEventListener('click', function() {
     var subject = document.getElementById('{{ form.subject.id_for_label }}').value;
     var category = document.getElementById('{{ form.category.id_for_label }}').value;
-    
+
     if (subject && category) {
         fetch(`{% url 'quiz:load_questions' %}?subject=${subject}&category=${category}`)
             .then(response => response.json())

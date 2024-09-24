@@ -7,8 +7,11 @@ class ForumQuestion(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     content = models.TextField()
+    image = models.ImageField(upload_to='forum_images/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='question_likes', blank=True)
+    dislikes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='question_dislikes', blank=True)
 
     def __str__(self):
         return self.title
@@ -17,8 +20,11 @@ class ForumComment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     question = models.ForeignKey(ForumQuestion, related_name='comments', on_delete=models.CASCADE)
     content = models.TextField()
+    image = models.ImageField(upload_to='comment_images/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='comment_likes', blank=True)
+    dislikes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='comment_dislikes', blank=True)
 
     def __str__(self):
         return f'Comment by {self.user.username}'
@@ -26,10 +32,13 @@ class ForumComment(models.Model):
 class Reply(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     content = models.TextField()
+    image = models.ImageField(upload_to='reply_images/', null=True, blank=True)
     comment = models.ForeignKey(ForumComment, related_name='replies', null=True, blank=True, on_delete=models.CASCADE)
     parent_reply = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='reply_likes', blank=True)
+    dislikes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='reply_dislikes', blank=True)
 
     def __str__(self):
         return f'Reply by {self.user.username}'

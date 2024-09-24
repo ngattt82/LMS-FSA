@@ -39,12 +39,12 @@ document.getElementById('submitQuestions').addEventListener('click', function() 
     checkboxes.forEach(function(checkbox) {
         selectedQuestions.push(parseInt(checkbox.value));
     });
-    
+
     window.opener.postMessage({
         type: 'selectedQuestions',
         questions: selectedQuestions
     }, '*');
-    
+
     window.close();
 });
 </script>

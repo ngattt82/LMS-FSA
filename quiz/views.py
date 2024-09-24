@@ -8,18 +8,38 @@ from .forms import QuizForm, SubmissionForm, GradingForm
 from question.models import Question, Answer
 from module_group.models import Module, ModuleGroup  # Import the existing ModuleGroup model
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Count
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_http_methods
+from random import shuffle, sample
+import random
+
+def check_quiz_due_date(view_func):
+    def wrapper(request, quiz_id, *args, **kwargs):
+        quiz = get_object_or_404(Quiz, id=quiz_id)
+        if quiz.is_past_due():
+            messages.error(request, "This quiz is past its due date and is no longer accessible.")
+            return redirect('quiz:quiz_list')
+        return view_func(request, quiz_id, *args, **kwargs)
+    return wrapper
 
 @login_required
 def quiz_list(request):
-    quizzes = Quiz.objects.all()
+    all_quizzes = Quiz.objects.all().order_by('-created_at')
     module_groups = ModuleGroup.objects.all()
 
-    # Get the user's submissions for each quiz
-    for quiz in quizzes:
-        quiz.user_submission = Submission.objects.filter(quiz=quiz, student=request.user).first()
+    for quiz in all_quizzes:
+        quiz.user_submissions = Submission.objects.filter(quiz=quiz, student=request.user)
+        quiz.is_past_due = quiz.is_past_due()
+        quiz.attempts_left = quiz.attempts_left(request.user)
+        quiz.calculated_grade = quiz.calculate_grade(request.user)
 
-    return render(request, 'quiz_list.html', {'quizzes': quizzes, 'module_groups': module_groups})
+    context = {
+        'quizzes': all_quizzes,
+        'module_groups': module_groups
+    }
+    return render(request, 'quiz_list.html', context)
 
 @login_required
 def create_quiz(request):
@@ -29,9 +49,23 @@ def create_quiz(request):
             quiz = form.save(commit=False)
             quiz.created_by = request.user
             quiz.save()
-            selected_questions = request.POST.getlist('selected_questions')
+
+            subject = form.cleaned_data['subject']
+            category = form.cleaned_data['category']
+            num_questions = request.POST.get('num_questions')
+
+            if num_questions:
+                # Randomly select questions
+                available_questions = Question.objects.filter(subject=subject, category=category)
+                num_questions = min(int(num_questions), available_questions.count())
+                selected_questions = random.sample(list(available_questions), num_questions)
+            else:
+                # Manually selected questions
+                selected_questions = request.POST.getlist('selected_questions')
+
             quiz.questions.set(selected_questions)
-            return redirect('quiz:quiz_detail', quiz_id=quiz.id)
+            messages.success(request, 'Quiz created successfully.')
+            return redirect('quiz:quiz_list')
     else:
         form = QuizForm()
 
@@ -40,6 +74,7 @@ def create_quiz(request):
 @login_required
 def edit_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
+
     if request.method == 'POST':
         form = QuizForm(request.POST, instance=quiz)
         if form.is_valid():
@@ -64,12 +99,35 @@ def delete_quiz(request, quiz_id):
 @login_required
 def quiz_detail(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
-    return render(request, 'quiz_detail.html', {'quiz': quiz})
+    is_past_due = quiz.is_past_due()
+    user_submissions = Submission.objects.filter(quiz=quiz, student=request.user)
+    attempts_left = quiz.attempts_left(request.user)
+    calculated_grade = quiz.calculate_grade(request.user)
+
+    context = {
+        'quiz': quiz,
+        'is_past_due': is_past_due,
+        'user_submissions': user_submissions,
+        'attempts_left': attempts_left,
+        'calculated_grade': calculated_grade,
+    }
+    return render(request, 'quiz_detail.html', context)
 
 @login_required
+@check_quiz_due_date
 def submit_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
-    questions = quiz.questions.all()
+
+    if not quiz.is_open_for_submission():
+        messages.error(request, "This quiz is not open for submission.")
+        return redirect('quiz:quiz_list')
+
+    if quiz.attempts_left(request.user) <= 0:
+        messages.error(request, "You have used all your attempts for this quiz.")
+        return redirect('quiz:quiz_detail', quiz_id=quiz.id)
+
+    questions = list(quiz.questions.all())
+    shuffle(questions)  # Shuffle the questions
 
     if request.method == 'POST':
         form = SubmissionForm(request.POST, request.FILES)
@@ -77,7 +135,11 @@ def submit_quiz(request, quiz_id):
             submission = form.save(commit=False)
             submission.quiz = quiz
             submission.student = request.user
-            submission.save()
+            try:
+                submission.save()
+            except ValueError as e:
+                messages.error(request, str(e))
+                return redirect('quiz:quiz_list')
 
             for question in questions:
                 answer_text = request.POST.get(f'answer_{question.id}')
@@ -88,7 +150,8 @@ def submit_quiz(request, quiz_id):
                         text=answer_text
                     )
 
-            submission.calculate_grade()
+            submission.grade = submission.calculate_score()
+            submission.save()
             return redirect('quiz:submission_result', submission_id=submission.id)
     else:
         form = SubmissionForm()

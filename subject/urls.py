@@ -14,4 +14,6 @@ urlpatterns = [
     path('<int:pk>/enrolled/', views.users_enrolled, name='users_enrolled'),
     path('search/', views.course_search, name='course_search'),
     path('download/<str:file_type>/<int:file_id>/', views.file_download, name='file_download'),
+    path('<int:pk>/content/', views.subject_content, name='subject_content'),
+    path('<int:pk>/content/edit/', views.subject_content_edit, name='subject_content_edit'),
 ]

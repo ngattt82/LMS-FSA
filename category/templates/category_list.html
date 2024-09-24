@@ -4,6 +4,7 @@
 
 {% block content %}
 <div class="container mt-4">
+    <!-- Danh sách Parent Categories -->
     <h2>Parent Categories</h2>
     <table class="table table-striped">
         <thead>
@@ -25,6 +26,7 @@
         </tbody>
     </table>
 
+    <!-- Danh sách Subcategories -->
     <h2>Subcategories</h2>
     <table class="table table-striped">
         <thead>
@@ -37,12 +39,8 @@
         <tbody>
             {% for subcategory in subcategories %}
             <tr>
-                <td>{{ subcategory.category_name }}</td>
-                <td>
-                    {% for parent in subcategory.parent_categories.all %}
-                        {{ parent.category_name }}{% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                </td>
+                <td>{{ subcategory.subcategory_name }}</td>
+                <td>{{ subcategory.parent_category.category_name }}</td>
                 <td>
                     <a href="{% url 'category:category_edit' subcategory.pk %}" class="btn btn-warning btn-sm">Edit</a>
                     <a href="{% url 'category:category_delete' subcategory.pk %}" class="btn btn-danger btn-sm">Delete</a>
@@ -52,6 +50,7 @@
         </tbody>
     </table>
 
+    <!-- Nút thêm Category mới -->
     <a href="{% url 'category:category_add' %}" class="btn btn-primary">Add New Category</a>
 </div>
 {% endblock %}
