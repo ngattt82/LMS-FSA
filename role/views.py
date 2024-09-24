@@ -1,11 +1,16 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Role
 from .forms import RoleForm
+from module_group.models import ModuleGroup
 # Create your views here.
 # Role views
 def role_list(request):
     roles = Role.objects.all()
-    return render(request, 'role_list.html', {'roles': roles})
+    module_groups = ModuleGroup.objects.all()
+    return render(request, 'role_list.html', {
+        'roles': roles,
+        'module_groups': module_groups,
+    })
 
 def role_add(request):
     if request.method == 'POST':

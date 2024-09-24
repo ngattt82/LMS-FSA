@@ -1,15 +1,14 @@
 {% extends 'base.html' %}
 
-{% block title %}Question Category List{% endblock %}
+{% block title %}Category List{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Category List</h2>
+    <h2>Parent Categories</h2>
     <table class="table table-striped">
         <thead>
             <tr>
                 <th>Category Name</th>
-                <th>Subject</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -17,7 +16,6 @@
             {% for category in categories %}
             <tr>
                 <td>{{ category.category_name }}</td>
-                <td>{{ category.subject.name }}</td>
                 <td>
                     <a href="{% url 'category:category_edit' category.pk %}" class="btn btn-warning btn-sm">Edit</a>
                     <a href="{% url 'category:category_delete' category.pk %}" class="btn btn-danger btn-sm">Delete</a>
@@ -26,6 +24,34 @@
             {% endfor %}
         </tbody>
     </table>
-    <a href="{% url 'category:category_add' %}" class="btn btn-primary">Add New Question Category</a>
+
+    <h2>Subcategories</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Subcategory Name</th>
+                <th>Parent Category</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subcategory in subcategories %}
+            <tr>
+                <td>{{ subcategory.category_name }}</td>
+                <td>
+                    {% for parent in subcategory.parent_categories.all %}
+                        {{ parent.category_name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    <a href="{% url 'category:category_edit' subcategory.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="{% url 'category:category_delete' subcategory.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'category:category_add' %}" class="btn btn-primary">Add New Category</a>
 </div>
 {% endblock %}

@@ -1,10 +1,15 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import UserModule
 from .forms import UserModuleForm
+from module_group.models import ModuleGroup
 
 def user_module_list(request):
+    module_groups = ModuleGroup.objects.all()
     user_modules = UserModule.objects.all()
-    return render(request, 'user_module_list.html', {'user_modules': user_modules})
+    return render(request, 'user_module_list.html', {
+        'user_modules': user_modules,
+        'module_groups': module_groups,
+    })
 
 def user_module_create(request):
     if request.method == 'POST':

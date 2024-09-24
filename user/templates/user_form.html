@@ -6,30 +6,68 @@
 {% block content %}
 <div class="container mt-4">
     <h2>{{ form.instance.pk|yesno:"Edit User,Add New User" }}</h2>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+
         <div class="form-group">
             {{ form.username.label_tag }}
             {{ form.username|add_class:"form-control" }}
         </div>
+
         <div class="form-group">
             {{ form.password.label_tag }}
             {{ form.password|add_class:"form-control" }}
         </div>
+
         <div class="form-group">
             {{ form.email.label_tag }}
             {{ form.email|add_class:"form-control" }}
         </div>
+
         <div class="form-group">
             {{ form.full_name.label_tag }}
             {{ form.full_name|add_class:"form-control" }}
         </div>
+
         <div class="form-group">
             {{ form.role.label_tag }}
             {{ form.role|add_class:"form-control" }}
         </div>
+
+        <!-- Profile Image Field -->
+        <div class="form-group">
+            {{ form.profile_image.label_tag }}
+            {{ form.profile_image|add_class:"form-control-file" }}
+            {% if form.instance.profile_image %}
+                <div class="mt-2">
+                    <img id="profile-image-preview" src="{{ form.instance.profile_image.url }}" alt="Profile Image" class="img-thumbnail" style="max-width: 150px;">
+                </div>
+            {% endif %}
+        </div>
+
         <button type="submit" class="btn btn-primary">Save</button>
         <a href="{% url 'user:user_list' %}" class="btn btn-secondary">Back to User List</a>
     </form>
 </div>
+
+<!-- JavaScript to handle image preview -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.querySelector('input[name="profile_image"]');
+    const previewImage = document.getElementById('profile-image-preview');
+
+    fileInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+            };
+
+            reader.readAsDataURL(file);
+        }
+    });
+});
+</script>
 {% endblock %}

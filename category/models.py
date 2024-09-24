@@ -1,9 +1,16 @@
 from django.db import models
-from subject.models import Subject
 
 class Category(models.Model):
     category_name = models.CharField(max_length=255)
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='categories')
+    subs = models.ManyToManyField('self', blank=True, related_name='parent_categories', symmetrical=False)
 
     def __str__(self):
         return self.category_name
+
+    def get_descendants(self):
+        descendants = set()
+        subs = self.subs.all()
+        for sub in subs:
+            descendants.add(sub)
+            descendants.update(sub.get_descendants())
+        return descendants

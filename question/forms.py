@@ -12,9 +12,9 @@ class QuestionForm(forms.ModelForm):
 class AnswerForm(forms.ModelForm):
     class Meta:
         model = Answer
-        fields = ['text', 'is_correct']
+        fields = ['text', 'is_correct']  # Changed from 'answer_text' to 'text'
 
-# Formset for handling multiple answers per question
+# Formset for handling multiple answers per question, quán lý nhóm các form trong app
 AnswerFormSet = inlineformset_factory(Question, Answer, form=AnswerForm, extra=1)
 
 # Formset for handling multiple questions

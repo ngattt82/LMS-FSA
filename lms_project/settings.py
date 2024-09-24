@@ -1,3 +1,4 @@
+
 """
 Django settings for lms_project project.
 
@@ -11,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-%9tkr6=2x0koih$(9^sggb-z)ub@g$37t*57u7eymim46k+9)w'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # ALLOWED_HOSTS = []
 ALLOWED_HOSTS = ['*']
@@ -34,6 +36,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'  # or 'bootstrap5'
 # Application definition
 
 INSTALLED_APPS = [
+    #'admin_interface',
+    #'colorfield',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,7 +49,7 @@ INSTALLED_APPS = [
     'main',
     # 'question_bank', #remove
     'module_group',
-    # 'module',
+    #'module',
     'role',
     'user',
     'training_program',
@@ -53,8 +57,11 @@ INSTALLED_APPS = [
     'training_program_subjects',
     'category',
     'question',
-    # 'quiz',
+    'quiz',
     'user_module',
+    'feedback',
+    'assignment',
+    'forum',
 ]
 
 
@@ -67,6 +74,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'user.middleware.UserAccessMiddleware',
 ]
 
 ROOT_URLCONF = 'lms_project.urls'
@@ -74,7 +82,7 @@ ROOT_URLCONF = 'lms_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -91,72 +99,31 @@ WSGI_APPLICATION = 'lms_project.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'fsa_lms',
-#         'USER': 'postgres',
-#         'PASSWORD': '1234567890',
-#         'HOST': 'localhost',  # Set to the appropriate host if using a remote server
-#         'PORT': '5432',       # Default PostgreSQL port
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'fsa_lms',
-#         'USER': 'ngattt@hcmuafserver',
-#         'PASSWORD': 'fsa@123456',
-#         'HOST': 'hcmuafserver.database.windows.net',  # Set to the appropriate host if using a remote server
-#         'PORT': '1433',       # Default PostgreSQL port
-#     }
-# }
-
-
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'mssql',
-        'NAME': 'hcmuafdb',
-        'USER': 'ngattt',
-        'PASSWORD': 'fsa@123456',
-        'HOST': 'hcmuafserver.database.windows.net',
-        'PORT': '1433',
-        'OPTIONS': {
-            'driver': 'ODBC Driver 18 for SQL Server',
-            'encrypt': True,
-            'trustServerCertificate': False,
-        },
-    }
-}
-
-
-
-# //Driver={ODBC Driver 18 for SQL Server};Server=tcp:hcmuafserver.database.windows.net,1433;Database=hcmuafdb;Uid=ngattt;Pwd={your_password_here};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;
-
-# jdbc:sqlserver://hcmuafserver.database.windows.net:1433;database=hcmuafdb;
-# user=ngattt@hcmuafserver;password={your_password_here};encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'FSA_indicateof',
-#         'USER': 'FSA_indicateof',
-#         'PASSWORD': '52eea5fe24803adf007d0b49ee538e3ee866a2e6',
-#         'HOST': 'd0e.h.filess.io',
-#         'PORT': '5433',
-#         'OPTIONS': {
-#             'options': '-c search_path=FSA_indicateof'  
-#         }
-#     }
-# }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
+
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+#}
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'Group2Internship$default',
+        'USER': 'Group2Internship',
+        'PASSWORD': '4321$#@!',
+        'HOST': 'Group2Internship.mysql.pythonanywhere-services.com',
+        'PORT': '3306',
+        'OPTIONS': {
+'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+}
+    }
+}
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -175,6 +142,39 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
+# https://docs.djangoproject.com/en/5.1/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'UTC'
+
+USE_I18N = True
+
+USE_TZ = True
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.1/howto/static-files/
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  # Add this line if you have custom static directories
+STATIC_ROOT = '/home/Group2Internship/LMS-FSA/staticfiles'  # For production use
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'  # Redirect after login
+LOGOUT_REDIRECT_URL = '/'  # Redirect after logout
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_NAME = 'sessionid'
+
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ quiz.title }} - Quiz Detail{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">{{ quiz.title }}</h2>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Quiz Information</h5>
+            <p><strong>Subject:</strong> {{ quiz.subject }}</p>
+            <p><strong>Category:</strong> {{ quiz.category }}</p>
+            <p><strong>End Date:</strong> {{ quiz.end_date }}</p>
+            <p><strong>Created By:</strong> {{ quiz.created_by }}</p>
+        </div>
+    </div>
+
+    <h3 class="mb-3">Questions</h3>
+    {% for question in quiz.questions.all %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Question {{ forloop.counter }}</h5>
+                <p class="card-text">{{ question.question_text }}</p>
+                
+                <h6 class="mt-3">Answers:</h6>
+                <ul>
+                    {% for answer in question.answers.all %}
+                        <li>
+                            {{ answer.answer_text }}
+                            {% if answer.is_correct %}
+                                <span class="badge bg-success">Correct</span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% empty %}
+        <p class="alert alert-info">No questions have been added to this quiz yet.</p>
+    {% endfor %}
+
+    <div class="mt-4">
+        <a href="{% url 'quiz:edit_quiz' quiz.id %}" class="btn btn-primary">Edit Quiz</a>
+        <a href="{% url 'quiz:delete_quiz' quiz.id %}" class="btn btn-danger">Delete Quiz</a>
+        <a href="{% url 'quiz:quiz_list' %}" class="btn btn-secondary">Back to Quiz List</a>
+    </div>
+</div>
+{% endblock %}

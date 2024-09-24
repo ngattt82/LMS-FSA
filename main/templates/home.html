@@ -5,6 +5,43 @@
 {% block content %}
 <div class="container mt-4">
     <h1>Welcome to the Home Page</h1>
-    <!-- Home page content -->
+    <h2>News and Events</h2>
+
+    <hr>
+
+    <!-- Display Latest News -->
+    <h2>Latest News</h2>
+    <ul>
+        {% if news_list %}
+            {% for news in news_list %}
+            <li><strong>{{ news.title }}</strong> - {{ news.created_at|date:"F j, Y" }}
+            <a href="{% url 'main:news_detail' news.id %}" class="btn btn-secondary btn-sm">View Detail</a></li>
+            {% endfor %}
+        {% else %}
+            <li>No news available.</li>
+        {% endif %}
+    </ul>
+
+    <hr>
+
+    <!-- Display Upcoming Events -->
+    <h2>Upcoming Events</h2>
+    <ul>
+        {% if event_list %}
+            {% for event in event_list %}
+            <li><strong>{{ event.title }}</strong> - {{ event.event_date|date:"F j, Y, g:i a" }}
+            <a href="{% url 'main:event_detail' event.id %}" class="btn btn-secondary btn-sm">View Detail</a></li>
+            {% endfor %}
+        {% else %}
+            <li>No upcoming events.</li>
+        {% endif %}
+    </ul>
+
+    <hr>
+
+    <!-- Link to the Admin Dashboard -->
+    {% if user.is_authenticated and user.is_staff %}
+    <a href="{% url 'main:dashboard' %}" class="btn btn-primary">Go to Dashboard Edit</a>
+    {% endif %}
 </div>
 {% endblock %}
